@@ -1,13 +1,19 @@
 package main;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Stack;
 
-public class ArgsProcessor {
+public abstract class ArgsProcessor {
 	
 	Map<String,Object> variables = new HashMap<String, Object>();
 	Map<String,String> aliases = new HashMap<String, String>();
+	Queue<String> varsWaiting = new LinkedList<String>();
+	List<String> knownVariables = new LinkedList<String>();
+	String varFlags = "";
 	
 	public ArgsProcessor(){
 		
@@ -26,20 +32,58 @@ public class ArgsProcessor {
 		}
 	}
 	
+	protected void handleAssignment(String var, String val){}
+	protected void handleFlag(char flag){}
+	protected void handleGenericArg(String arg){}
+	
 	private void process(String arg) throws AliasRecursionException{
+		if(!varsWaiting.isEmpty()){
+			String var = varsWaiting.poll();
+			this.variables.put(var, arg);
+			this.handleAssignment(var, arg);
+			return;
+		}
 		arg = this.resolveAlias(arg);
 		if(arg.startsWith("--")){
-			String var = null;
+			String var = null, val = ""+true;
 			if(arg.contains("=")){
-				var = arg.substring(2,arg.indexOf("="));
+				int idx = arg.indexOf("=");
+				var = arg.substring(2,idx);
+				val = arg.substring(idx+1);
+				this.variables.put(var, val);
+				this.handleAssignment(var, val);
 			}else{
 				var = arg.substring(2);
+				if(this.knownVariables.contains(var)){
+					this.varsWaiting.add(var);
+				}else{
+					this.variables.put(var, val);
+					this.handleAssignment(var, val);
+				}
 			}
-			
+		}else if(arg.startsWith("-")){//Test if it's a flag
+			String flags = arg.substring(1);//strip the dash
+			for(char c : flags.toCharArray()){//to handle multiple flags
+				String var = this.resolveAlias("-"+c);//Find alias
+				if(!var.equals(c+"")){//Test to see if there is an alias
+					this.process(var);//resolve like that alias demands
+				}else if(this.varFlags.contains(""+c)){//test to see if it's a known var flag
+					this.varsWaiting.add(""+c);
+				}else{
+					this.variables.put(""+c, ""+true);
+					this.handleFlag(c);
+				}
+			}
+		}else{
+			this.handleGenericArg(arg);
 		}
 	}
 	
-	private String resolveAlias(String arg) throws AliasRecursionException{
+	public boolean isDefined(String var){
+		return variables.get(var)!=null;
+	}
+	
+	public String resolveAlias(String arg) throws AliasRecursionException{
 		Stack<String> backTrace = new Stack<String>();
 		while(aliases.containsKey(arg)){
 			backTrace.add(arg);
