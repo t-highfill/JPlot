@@ -1,5 +1,7 @@
 package main;
 
+import main.args.ArgsProcessor;
+
 public class JPlot extends ArgsProcessor{
 	public static final int DEFAULT_WIDTH = 800;
 	public static final int DEFAULT_HEIGHT = 600;
