@@ -57,4 +57,7 @@ public class GLColor {
 	public float getAlpha() {
 		return a;
 	}
+	public Color toColor(){
+		return new Color(r, g, b, a);
+	}
 }

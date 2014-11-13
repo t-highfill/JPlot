@@ -2,9 +2,9 @@ package main;
 
 import geom.Point;
 
-import java.util.ArrayList;
+import java.util.TreeSet;
 
-public abstract class Dataset extends ArrayList<Point>{
+public abstract class Dataset extends TreeSet<Point>{
 	private static final long serialVersionUID = 1522253239006114986L;
 	GLColor color = JPlot.DEFAULT_LINECOLOR;
 	private volatile boolean done = false;
@@ -15,6 +15,16 @@ public abstract class Dataset extends ArrayList<Point>{
 			done=true;
 		}
 	});
+	
+	public Point get(int index){
+		for(Point p : this){
+			if(index==0){
+				return p;
+			}
+			index--;
+		}
+		throw new ArrayIndexOutOfBoundsException(index);
+	}
 	
 	protected abstract void read();
 	

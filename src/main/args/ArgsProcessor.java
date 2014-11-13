@@ -4,18 +4,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Stack;
 
 import main.AliasRecursionException;
 
 public abstract class ArgsProcessor {
-	
-	Map<String,Object> variables = new HashMap<String, Object>();
-	Map<String,String> aliases = new HashMap<String, String>();
-	Queue<String> varsWaiting = new LinkedList<String>();
-	protected List<String> knownVariables = new LinkedList<String>();
-	protected List<String> knownFlags = new LinkedList<String>();
+	protected Map<String,String> aliases = new HashMap<String, String>();
+	protected List<ArgMatcher> knownArgs = new LinkedList<ArgMatcher>();
 	
 	public ArgsProcessor(){
 		
@@ -39,50 +34,14 @@ public abstract class ArgsProcessor {
 	protected void handleGenericArg(String arg){}
 	
 	private void process(String arg) throws AliasRecursionException{
-		if(!varsWaiting.isEmpty()){
-			String var = varsWaiting.poll();
-			this.variables.put(var, arg);
-			this.handleAssignment(var, arg);
-			return;
-		}
-		arg = this.resolveAlias(arg);
-		if(arg.startsWith("--")){
-			String var = null, val = ""+true;
-			if(arg.contains("=")){
-				int idx = arg.indexOf("=");
-				var = arg.substring(2,idx);
-				val = arg.substring(idx+1);
-				this.variables.put(var, val);
-				this.handleAssignment(var, val);
-			}else{
-				var = arg.substring(2);
-				if(this.knownVariables.contains(var)){
-					this.varsWaiting.add(var);
-				}else{
-					this.variables.put(var, val);
-					this.handleAssignment(var, val);
-				}
+		arg=this.resolveAlias(arg);
+		for(ArgMatcher argument : this.knownArgs){
+			if(argument.matches(arg)){
+				argument.process(arg);
+				return;
 			}
-		}else if(arg.startsWith("-")){//Test if it's a flag
-			String flags = arg.substring(1);//strip the dash
-			for(char c : flags.toCharArray()){//to handle multiple flags
-				String var = this.resolveAlias("-"+c);//Find alias
-				if(!var.equals(c+"")){//Test to see if there is an alias
-					this.process(var);//resolve like that alias demands
-				}else if(this.knownFlags.contains(""+c)){//test to see if it's a known var flag
-					this.varsWaiting.add(""+c);
-				}else{
-					this.variables.put(""+c, ""+true);
-					this.handleFlag(c);
-				}
-			}
-		}else{
-			this.handleGenericArg(arg);
 		}
-	}
-	
-	public boolean isDefined(String var){
-		return variables.get(var)!=null;
+		System.err.println("Unhandled argument: "+arg);
 	}
 	
 	public String resolveAlias(String arg) throws AliasRecursionException{

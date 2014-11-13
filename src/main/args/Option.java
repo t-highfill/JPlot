@@ -1,13 +1,21 @@
 package main.args;
 
-public class Option extends Argument<String>{
+public class Option<E> extends VariableArgument<E>{
+	
+	protected final Converter<String, E> conv;
 
-	public Option(String name, String defVal) {
+	public Option(String name, E defVal, Converter<String, E> conv) {
 		super(name, defVal);
+		this.conv=conv;
 	}
 	
-	public Option(String name, String defVal, String val) {
+	public Option(String name, E defVal, E val, Converter<String, E> conv) {
 		super(name, defVal, val);
+		this.conv=conv;
+	}
+	
+	public boolean nameMatches(String arg){
+		return arg.startsWith(this.name);
 	}
 
 	@Override
@@ -19,7 +27,7 @@ public class Option extends Argument<String>{
 	@Override
 	public void process(String arg) {
 		assert this.matches(arg);
-		this.val = arg.substring(arg.indexOf('=')+1);
+		this.val = this.conv.convert(arg.substring(arg.indexOf('=')+1));
 	}
 	
 }

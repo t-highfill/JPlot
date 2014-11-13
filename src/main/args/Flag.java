@@ -1,6 +1,6 @@
 package main.args;
 
-public class Flag extends Argument<Boolean>{
+public class Flag extends VariableArgument<Boolean>{
 	
 	public Flag(String name){
 		this(name, false);
