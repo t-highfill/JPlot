@@ -4,10 +4,19 @@ import java.io.File;
 
 
 public class FileOption extends Option<File> {
+	
+	public FileOption(String name, File defVal, boolean optional) {
+		this(name, defVal);
+		this.setOptional(optional);
+	}
+
+	public FileOption(String name, File defVal, File val, boolean optional) {
+		this(name, defVal, val);
+		this.setOptional(optional);
+	}
 
 	public FileOption(String name, File defVal) {
 		this(name, defVal, defVal);
-		// TODO Auto-generated constructor stub
 	}
 
 	public FileOption(String name, File defVal, File val) {
@@ -17,7 +26,6 @@ public class FileOption extends Option<File> {
 				return new File(t);
 			}
 		});
-		// TODO Auto-generated constructor stub
 	}
 
 }

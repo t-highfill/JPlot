@@ -1,7 +1,6 @@
 package main.args;
 
-public abstract class VariableArgument<E> implements ArgMatcher{
-	final String name;
+public abstract class VariableArgument<E> extends AbstractArgMatcher{
 	final E defVal;
 	E val;
 	
@@ -13,8 +12,17 @@ public abstract class VariableArgument<E> implements ArgMatcher{
 		this(name,defVal, defVal);
 	}
 	public VariableArgument(String name, E defVal, E val){
-		this.name = name;
+		super(name);
 		this.defVal = defVal;
 		this.val = val;
+	}
+	public boolean isOptional() {
+		return optional;
+	}
+	public void setOptional(boolean optional) {
+		this.optional = optional;
+	}
+	public E getVal() {
+		return val;
 	}
 }

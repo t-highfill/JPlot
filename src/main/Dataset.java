@@ -17,13 +17,14 @@ public abstract class Dataset extends TreeSet<Point>{
 	});
 	
 	public Point get(int index){
+		final int idx = index;
 		for(Point p : this){
 			if(index==0){
 				return p;
 			}
 			index--;
 		}
-		throw new ArrayIndexOutOfBoundsException(index);
+		throw new ArrayIndexOutOfBoundsException(idx);
 	}
 	
 	protected abstract void read();

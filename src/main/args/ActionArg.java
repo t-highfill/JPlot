@@ -1,11 +1,9 @@
 package main.args;
 
-public abstract class ActionArg implements ArgMatcher {
-	
-	final String name;
+public abstract class ActionArg extends AbstractArgMatcher{
 	
 	public ActionArg(String name){
-		this.name=name;
+		super(name);
 	}
 
 	@Override

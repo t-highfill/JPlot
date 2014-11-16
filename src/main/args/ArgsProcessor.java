@@ -33,6 +33,8 @@ public abstract class ArgsProcessor {
 	protected void handleFlag(char flag){}
 	protected void handleGenericArg(String arg){}
 	
+	public abstract void showHelp();
+	
 	private void process(String arg) throws AliasRecursionException{
 		arg=this.resolveAlias(arg);
 		for(ArgMatcher argument : this.knownArgs){
@@ -42,6 +44,7 @@ public abstract class ArgsProcessor {
 			}
 		}
 		System.err.println("Unhandled argument: "+arg);
+		this.showHelp();
 	}
 	
 	public String resolveAlias(String arg) throws AliasRecursionException{

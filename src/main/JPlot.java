@@ -1,5 +1,7 @@
 package main;
 
+import java.util.Arrays;
+
 import main.args.*;
 
 public class JPlot extends ArgsProcessor{
@@ -14,7 +16,7 @@ public class JPlot extends ArgsProcessor{
 		new ActionArg("--help"){	//Display help
 			@Override
 			public void action() {
-				showHelp();
+				JPLOT.showHelp();
 			}
 		},
 		new ColorOption("--color", DEFAULT_LINECOLOR),	//Line color
@@ -30,7 +32,8 @@ public class JPlot extends ArgsProcessor{
 		{"--colour", "--color"},	//brit-proofing
 		{"--bg-colour","--bg-color"}	//More brit-proofing
 	};
-	public static void showHelp(){
+	public static final JPlot JPLOT = new JPlot();
+	public void showHelp(){
 		System.out.println("JPlot: the java based data plotter");
 		System.out.println("USAGE:\tJPlot [OPTIONS] [FILE]");
 	}
@@ -40,18 +43,26 @@ public class JPlot extends ArgsProcessor{
 	
 	private JPlot(){
 		super(ALIASES);
-		for(ArgMatcher s : VAR_OPTIONS){
-			this.knownArgs.add(s);
-		}
+		this.knownArgs.add(
+				new ArgList<ArgMatcher>("mainSeq",false,
+						new ArgSet<ArgMatcher>("options", true,VAR_OPTIONS),
+						new FileLoop("files", true)
+				)
+		);
+		
 	}
 	
 	public static void main(String[] args){
-		JPlot jplot = new JPlot();
+		System.out.println("args="+Arrays.toString(args));
 		try {
-			jplot.process(args);
+			JPLOT.process(args);
 		} catch (AliasRecursionException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
+		System.out.println(JPLOT.knownArgs.get(0));
+		FileOption fo = new FileOption("--y-file", null);
+		fo.process("--y-file=testdata.txt");
+		System.out.println(fo.getVal());
 	}
 }
