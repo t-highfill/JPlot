@@ -13,8 +13,8 @@ public class ArgSet<E extends ArgMatcher> extends AbstractArgMatcher  implements
 	}
 	
 	final Set<E> argset;
+	private Set<E> workingset = null;
 	private final Map<String, E> knownMatches = new HashMap<String, E>();
-	private boolean done = false;
 	
 	public ArgSet(String name, boolean optional, Set<E> argset) {
 		super(name, optional);
@@ -33,31 +33,49 @@ public class ArgSet<E extends ArgMatcher> extends AbstractArgMatcher  implements
 	public ArgSet(String name, boolean optional, E...matchers){
 		this(name, optional, createSet(matchers));
 	}
+	
+	private void checkWorkingset(){
+		if(this.workingset == null){
+			this.workingset = new HashSet<E>(argset);
+		}
+	}
 
 	@Override
 	public boolean matches(String arg) {
+		this.checkWorkingset();
 		if(this.knownMatches.get(arg)!=null){
 			return true;
 		}
-		for(E e : argset){
+		for(E e : this.workingset){
 			if(e.matches(arg)){
 				knownMatches.put(arg, e);
+				this.workingset.remove(e);
 				return true;
 			}
 		}
-		this.done = true;
 		return false;
 	}
 
 	@Override
-	public void process(String arg) {
+	protected void processArg(String arg) {
 		assert this.matches(arg);
 		this.knownMatches.get(arg).process(arg);
 	}
 
 	@Override
-	public boolean isDone() {
-		return done;
+	protected int getUses() {
+		return this.workingset.size();
 	}
 
+	@Override
+	protected void decrUses() {
+		//Nothing!
+	}
+	public String toString(){
+		String res = "ArgSet[";
+		for(ArgMatcher am : this.argset){
+			res+="\n\t"+am;
+		}
+		return res+']';
+	}
 }

@@ -60,4 +60,7 @@ public class GLColor {
 	public Color toColor(){
 		return new Color(r, g, b, a);
 	}
+	public String toString(){
+		return String.format("GLColor(%f,%f,%f,%f)", r,g,b,a);
+	}
 }

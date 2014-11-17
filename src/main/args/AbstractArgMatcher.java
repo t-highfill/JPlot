@@ -1,9 +1,10 @@
 package main.args;
 
-public abstract class AbstractArgMatcher implements ArgMatcher {
+public abstract class AbstractArgMatcher implements ContinuousMatcher {
 	
 	final String name;
 	boolean optional = false;
+	private int uses = 1;
 	
 	public AbstractArgMatcher(String name){
 		this.name=name;
@@ -27,6 +28,28 @@ public abstract class AbstractArgMatcher implements ArgMatcher {
 	@Override
 	public void setOptional(boolean optional) {
 		this.optional = optional;
+	}
+	
+	protected int getUses(){
+		return uses;
+	}
+	
+	protected void decrUses(){
+		uses--;
+	}
+	
+	
+	protected abstract void processArg(String arg);
+
+	@Override
+	public final void process(String arg) {
+		processArg(arg);
+		decrUses();
+	}
+
+	@Override
+	public boolean isDone() {
+		return getUses()<=0;
 	}
 
 }

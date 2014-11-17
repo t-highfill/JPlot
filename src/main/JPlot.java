@@ -5,6 +5,7 @@ import java.util.Arrays;
 import main.args.*;
 
 public class JPlot extends ArgsProcessor{
+	public static final DebugStream DEBUG = new DebugStream(System.err);
 	public static final int DEFAULT_WIDTH = 800;
 	public static final int DEFAULT_HEIGHT = 600;
 	public static final GLColor DEFAULT_BACKGROUND = GLColor.WHITE;
@@ -23,7 +24,9 @@ public class JPlot extends ArgsProcessor{
 		new ColorOption("--bg-color", DEFAULT_BACKGROUND),	//Background color
 		new StringOption("--title", DEFAULT_TITLE),
 		new FileOption("--y-file", null),
-		new FileOption("--x-file", null)
+		new FileOption("--x-file", null),
+		new Flag("--x-stdin", false),
+		new Flag("--y-stdin", true)
 	};
 	public static final String[][] ALIASES = {
 		{"-w", "--width"},
@@ -44,16 +47,15 @@ public class JPlot extends ArgsProcessor{
 	private JPlot(){
 		super(ALIASES);
 		this.knownArgs.add(
-				new ArgList<ArgMatcher>("mainSeq",false,
-						new ArgSet<ArgMatcher>("options", true,VAR_OPTIONS),
+				new ArgList<AbstractArgMatcher>("mainSeq",false,
+						new ArgSet<ArgMatcher>("options", true, VAR_OPTIONS),
 						new FileLoop("files", true)
 				)
 		);
-		
 	}
 	
 	public static void main(String[] args){
-		System.out.println("args="+Arrays.toString(args));
+		DEBUG.println("args="+Arrays.toString(args));
 		try {
 			JPLOT.process(args);
 		} catch (AliasRecursionException e) {
@@ -61,8 +63,5 @@ public class JPlot extends ArgsProcessor{
 			System.exit(1);
 		}
 		System.out.println(JPLOT.knownArgs.get(0));
-		FileOption fo = new FileOption("--y-file", null);
-		fo.process("--y-file=testdata.txt");
-		System.out.println(fo.getVal());
 	}
 }

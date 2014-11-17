@@ -3,12 +3,10 @@ package main.args;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
-public class ArgList<E extends ArgMatcher> extends ArgSequence<E> {
+public class ArgList<E extends AbstractArgMatcher> extends ArgSequence<E> {
 	
 	protected final List<E> arglist;
-	protected int idx = 0;
 
 	public ArgList(String name, boolean optional) {
 		super(name, optional);
@@ -38,17 +36,8 @@ public class ArgList<E extends ArgMatcher> extends ArgSequence<E> {
 	}
 
 	@Override
-	public boolean hasNext() {
-		return idx<arglist.size() && idx>=0;
-	}
-
-	@Override
-	protected E next() {
-		if(hasNext()){
-			return arglist.get(idx++);
-		}else{
-			throw new NoSuchElementException();
-		}
+	protected List<E> getList() {
+		return this.arglist;
 	}
 
 }

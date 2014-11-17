@@ -48,7 +48,7 @@ public class MultiFlag extends AbstractArgMatcher{
 	}
 
 	@Override
-	public void process(String arg) {
+	protected void processArg(String arg) {
 		assert this.matches(arg);
 		for(CharFlag match : matchlist){
 			match.process(arg);

@@ -20,7 +20,7 @@ public class Flag extends VariableArgument<Boolean>{
 	}
 
 	@Override
-	public void process(String arg) {
+	protected void processArg(String arg) {
 		this.val = !this.val;
 	}
 	

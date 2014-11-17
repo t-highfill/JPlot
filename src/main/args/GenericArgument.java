@@ -16,7 +16,7 @@ public class GenericArgument extends VariableArgument<String> {
 	}
 
 	@Override
-	public void process(String arg) {
+	protected void processArg(String arg) {
 		this.val=arg;
 	}
 

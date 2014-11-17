@@ -12,7 +12,7 @@ public abstract class ActionArg extends AbstractArgMatcher{
 	}
 
 	@Override
-	public void process(String arg) {
+	protected void processArg(String arg) {
 		if(this.matches(arg))
 			action();
 	}

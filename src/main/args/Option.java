@@ -25,7 +25,7 @@ public class Option<E> extends VariableArgument<E>{
 	}
 
 	@Override
-	public void process(String arg) {
+	protected void processArg(String arg) {
 		assert this.matches(arg);
 		this.val = this.conv.convert(arg.substring(arg.indexOf('=')+1));
 	}

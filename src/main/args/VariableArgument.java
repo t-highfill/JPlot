@@ -25,4 +25,7 @@ public abstract class VariableArgument<E> extends AbstractArgMatcher{
 	public E getVal() {
 		return val;
 	}
+	public String toString(){
+		return "Var:"+this.name+"="+this.val;
+	}
 }

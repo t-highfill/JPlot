@@ -44,7 +44,7 @@ public abstract class ArgsProcessor {
 			}
 		}
 		System.err.println("Unhandled argument: "+arg);
-		this.showHelp();
+//		this.showHelp();
 	}
 	
 	public String resolveAlias(String arg) throws AliasRecursionException{
