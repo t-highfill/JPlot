@@ -11,37 +11,59 @@ public class JPlot extends ArgsProcessor{
 	public static final GLColor DEFAULT_BACKGROUND = GLColor.WHITE;
 	public static final GLColor DEFAULT_LINECOLOR = GLColor.BLACK;
 	public static final String DEFAULT_TITLE = "JPlot";
+	
+	public static final IntOption WIDTH = new IntOption("--width", DEFAULT_WIDTH);	//Window width
+	public static final IntOption HEIGHT = new IntOption("--height",DEFAULT_HEIGHT);	//Window height
+	public static final ColorOption LINECOLOR = new ColorOption("--color", DEFAULT_LINECOLOR);	//Line color
+	public static final ColorOption BG_COLOR = new ColorOption("--bg-color", DEFAULT_BACKGROUND);	//Background color
+	public static final StringOption TITLE = new StringOption("--title", DEFAULT_TITLE);	//window title
+	public static final FileOption Y_FILE = new FileOption("--y-file", null);	//y data file
+	public static final FileOption X_FILE = new FileOption("--x-file", null);	//x data file
+	public static final Flag X_STDIN_FLAG = new Flag("--x-stdin", false);	//true if x should be taken from stdin
+	public static final Flag Y_STDIN_FLAG = new Flag("--y-stdin", true);	//true if y should be taken from stdin
+	public static final Flag DEBUG_MODE = new Flag("--debug", false);	//controls debug mode
+	public static final ActionArg HELP = new ActionArg("--help"){	//Display help
+		@Override
+		public void action() {
+			JPLOT.showHelp();
+		}
+	};
+	public static final ActionArg VERSION = new ActionArg("--version"){	//Display version info
+		@Override
+		public void action() {
+			JPlot.showVersion();
+		}
+	};
+	{
+		WIDTH.description = "Window width in pixels";
+		HEIGHT.description = "Window height in pixels";
+		LINECOLOR.description = "Color of the line in the plot";
+		BG_COLOR.description = "Color of the background in the plot";
+		TITLE.description = "Title of the window";
+		Y_FILE.description = "File to extract y values from";
+		X_FILE.description = "File to extract x values from";
+		X_STDIN_FLAG.description = "Extract x values from standard input";
+		Y_STDIN_FLAG.description = "Extract y values from standard input";
+		DEBUG_MODE.description = "Run program in debug mode";
+		HELP.description = "Display this help message";
+		VERSION.description = "Display version information";
+	}
+	
 	public static final ArgMatcher[] VAR_OPTIONS = {
-		new IntOption("--width", DEFAULT_WIDTH),	//Window width
-		new IntOption("--height",DEFAULT_HEIGHT),	//Window height
-		new ActionArg("--help"){	//Display help
-			@Override
-			public void action() {
-				JPLOT.showHelp();
-			}
-		},
-		new ColorOption("--color", DEFAULT_LINECOLOR),	//Line color
-		new ColorOption("--bg-color", DEFAULT_BACKGROUND),	//Background color
-		new StringOption("--title", DEFAULT_TITLE),
-		new FileOption("--y-file", null),
-		new FileOption("--x-file", null),
-		new Flag("--x-stdin", false),
-		new Flag("--y-stdin", true)
+		//Since this is the order in which they appear in the help message I have sorted them alphabetically
+		BG_COLOR, DEBUG_MODE, HEIGHT, HELP, LINECOLOR, TITLE, VERSION, WIDTH, X_FILE, X_STDIN_FLAG, Y_FILE, Y_STDIN_FLAG
 	};
 	public static final String[][] ALIASES = {
-		{"-w", "--width"},
-		{"-h", "--height"},
-		{"-c", "--color"},
-		{"--colour", "--color"},	//brit-proofing
-		{"--bg-colour","--bg-color"}	//More brit-proofing
+		{"-w", WIDTH.getName()},
+		{"-h", HEIGHT.getName()},
+		{"-c", LINECOLOR.getName()},
+		{"--colour", LINECOLOR.getName()},	//brit-proofing
+		{"--bg-colour", BG_COLOR.getName()}	//More brit-proofing
 	};
 	public static final JPlot JPLOT = new JPlot();
-	public void showHelp(){
-		System.out.println("JPlot: the java based data plotter");
-		System.out.println("USAGE:\tJPlot [OPTIONS] [FILE]");
-	}
-	public static void showVersion(){
-		System.out.println("JPlot 0.0.1");
+	
+	public static boolean isDebugOn(){
+		return DEBUG_MODE.getVal();
 	}
 	
 	private JPlot(){
@@ -54,6 +76,17 @@ public class JPlot extends ArgsProcessor{
 		);
 	}
 	
+	public void showHelp(){
+		System.out.println("JPlot: the java based data plotter");
+		System.out.println("USAGE:\tJPlot [OPTIONS] [FILES]\nOPTIONS:");
+		for(ArgMatcher am : VAR_OPTIONS){
+			System.out.println("\t"+am.getHelp());
+		}
+	}
+	public static void showVersion(){
+		System.out.println("JPlot 0.0.1");
+	}
+	
 	public static void main(String[] args){
 		DEBUG.println("args="+Arrays.toString(args));
 		try {
@@ -62,6 +95,6 @@ public class JPlot extends ArgsProcessor{
 			e.printStackTrace();
 			System.exit(1);
 		}
-		System.out.println(JPLOT.knownArgs.get(0));
+		DEBUG.println(JPLOT.knownArgs.get(0));
 	}
 }

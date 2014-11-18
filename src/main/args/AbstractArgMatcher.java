@@ -3,6 +3,7 @@ package main.args;
 public abstract class AbstractArgMatcher implements ContinuousMatcher {
 	
 	final String name;
+	public String description = "";
 	boolean optional = false;
 	private int uses = 1;
 	
@@ -13,6 +14,10 @@ public abstract class AbstractArgMatcher implements ContinuousMatcher {
 	public AbstractArgMatcher(String name, boolean optional){
 		this(name);
 		this.optional = optional;
+	}
+	
+	public String getHelp(){
+		return this.name+"\t"+this.description+(this.optional?"\t(optional)":"");
 	}
 
 	@Override
@@ -37,7 +42,6 @@ public abstract class AbstractArgMatcher implements ContinuousMatcher {
 	protected void decrUses(){
 		uses--;
 	}
-	
 	
 	protected abstract void processArg(String arg);
 

@@ -4,10 +4,6 @@ public abstract class VariableArgument<E> extends AbstractArgMatcher{
 	final E defVal;
 	E val;
 	
-	@Override
-	public String getName(){
-		return name;
-	}
 	public VariableArgument(String name, E defVal){
 		this(name,defVal, defVal);
 	}
@@ -15,6 +11,9 @@ public abstract class VariableArgument<E> extends AbstractArgMatcher{
 		super(name);
 		this.defVal = defVal;
 		this.val = val;
+	}
+	public String getHelp(){
+		return super.getHelp()+" (default: "+defVal+')';
 	}
 	public boolean isOptional() {
 		return optional;
