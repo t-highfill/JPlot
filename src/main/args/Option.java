@@ -28,6 +28,8 @@ public class Option<E> extends VariableArgument<E>{
 	protected void processArg(String arg) {
 		assert this.matches(arg);
 		this.val = this.conv.convert(arg.substring(arg.indexOf('=')+1));
+		this.defined = true;
+		this.changed = !this.val.equals(this.defVal);
 	}
 	
 }

@@ -3,6 +3,8 @@ package main.args;
 public abstract class VariableArgument<E> extends AbstractArgMatcher{
 	final E defVal;
 	E val;
+	protected boolean defined = false;
+	protected boolean changed = false;
 	
 	public VariableArgument(String name, E defVal){
 		this(name,defVal, defVal);
@@ -26,5 +28,11 @@ public abstract class VariableArgument<E> extends AbstractArgMatcher{
 	}
 	public String toString(){
 		return "Var:"+this.name+"="+this.val;
+	}
+	public boolean isDefined() {
+		return defined;
+	}
+	public boolean isChanged() {
+		return changed;
 	}
 }

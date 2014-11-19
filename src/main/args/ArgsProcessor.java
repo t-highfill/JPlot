@@ -8,6 +8,11 @@ import java.util.Stack;
 
 import main.AliasRecursionException;
 
+/**
+ * Class for processing command line arguments
+ * @author trh
+ *
+ */
 public abstract class ArgsProcessor {
 	protected Map<String,String> aliases = new HashMap<String, String>();
 	protected List<ArgMatcher> knownArgs = new LinkedList<ArgMatcher>();

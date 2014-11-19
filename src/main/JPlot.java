@@ -1,11 +1,21 @@
 package main;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Arrays;
-
 import main.args.*;
 
+/**
+ * Main class for the program
+ * 
+ * @author Tobias Highfill
+ *
+ */
 public class JPlot extends ArgsProcessor{
-	public static final DebugStream DEBUG = new DebugStream(System.err);
+	public static final DebugStream DEBUG = new DebugStream(System.out);
 	public static final int DEFAULT_WIDTH = 800;
 	public static final int DEFAULT_HEIGHT = 600;
 	public static final GLColor DEFAULT_BACKGROUND = GLColor.WHITE;
@@ -66,12 +76,61 @@ public class JPlot extends ArgsProcessor{
 		return DEBUG_MODE.getVal();
 	}
 	
+	private static Reader[] getReaders() throws FileNotFoundException{
+		boolean[] stdin = {X_STDIN_FLAG.getVal(), Y_STDIN_FLAG.getVal()};
+		File[] files = {X_FILE.getVal(), Y_FILE.getVal()}, otherFiles = JPlot.FILES.getFiles();
+		Reader[] readers = {null, null};
+		assert stdin.length == files.length && files.length == readers.length;
+		if(X_STDIN_FLAG.isDefined() && Y_STDIN_FLAG.isDefined()){
+			throw new FlagCollisionException(X_STDIN_FLAG, Y_STDIN_FLAG);
+		}
+		for(int i=0;i<readers.length;i++){
+			if(stdin[i]){
+				readers[i]=new InputStreamReader(System.in);
+			}else if(files[i]!=null){
+				readers[i] = new FileReader(files[i]);
+			}
+		}
+		if(readers[1]==null && otherFiles.length>0){
+			readers[1]=new FileReader(otherFiles[0]);
+		}
+		return readers;
+	}
+	private static Dataset data = null;
+	public static Dataset getData(){
+		if(data!=null){
+			return data;
+		}
+		Reader[] readers = {null, null};
+		try {
+			readers = getReaders();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.exit(e.getMessage().hashCode());
+		}
+		boolean xnull=readers[0]==null, ynull=readers[1]==null;
+		if(xnull && ynull){
+			throw new RuntimeException("Unable to find data");
+		}else if(!xnull && !ynull){
+			data = new DualStreamDataset(readers[0], readers[1]);
+		}else{
+			for(Reader r : readers){
+				if(r!=null){
+					data = new SingleStreamDataset(r);
+				}
+			}
+		}
+		return data;
+	}
+	
+	public static final FileLoop FILES = new FileLoop("files", true);
+	
 	private JPlot(){
 		super(ALIASES);
 		this.knownArgs.add(
 				new ArgList<AbstractArgMatcher>("mainSeq",false,
 						new ArgSet<ArgMatcher>("options", true, VAR_OPTIONS),
-						new FileLoop("files", true)
+						FILES
 				)
 		);
 	}
