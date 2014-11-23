@@ -14,8 +14,8 @@ public abstract class VariableArgument<E> extends AbstractArgMatcher{
 		this.defVal = defVal;
 		this.val = val;
 	}
-	public String getHelp(){
-		return super.getHelp()+" (default: "+defVal+')';
+	public String getHelp(int size, char pad){
+		return super.getHelp(size, pad)+" (default: "+defVal+')';
 	}
 	public boolean isOptional() {
 		return optional;

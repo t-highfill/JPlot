@@ -16,8 +16,20 @@ public abstract class AbstractArgMatcher implements ContinuousMatcher {
 		this.optional = optional;
 	}
 	
+	public String getHelp(int size, char pad){
+		String namepad = name;
+		while(namepad.length()<size){
+			namepad = namepad+pad;
+		}
+		return namepad+"\t"+this.description+(this.optional?"\t(optional)":"");
+	}
+	
+	public String getHelp(int size){
+		return this.getHelp(size, ' ');
+	}
+	
 	public String getHelp(){
-		return this.name+"\t"+this.description+(this.optional?"\t(optional)":"");
+		return this.getHelp(0);
 	}
 
 	@Override

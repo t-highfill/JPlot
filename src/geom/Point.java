@@ -2,7 +2,7 @@ package geom;
 
 import org.lwjgl.opengl.GL11;
 
-public class Point {
+public class Point implements Comparable<Point>{
 	public final double x,y,z;
 	public Point(double x, double y, double z){
 		this.x=x;
@@ -16,7 +16,10 @@ public class Point {
 		this(copy.x,copy.y,copy.z);
 	}
 	public void activate(){
-		GL11.glVertex2d(x, y);
+		GL11.glVertex3d(x, y, z);
+	}
+	public void intActivate(){
+		GL11.glVertex3i((int) x, (int) y, (int) z);
 	}
 	public double distTo(Point other){
 		return Math.sqrt(sqr(x-other.x)+sqr(y-other.y)+sqr(z-other.z));
@@ -53,5 +56,16 @@ public class Point {
 	}
 	public Point add(double x, double y, double z){
 		return new Point(this.x+x,this.y+y, this.z+z);
+	}
+	@Override
+	public int compareTo(Point o) {
+		int res = (int) (this.x-o.x);
+		if(res == 0){
+			res = (int) (this.y-o.y);
+		}
+		if(res ==0 ){
+			res = (int) (this.z-o.z);
+		}
+		return res;
 	}
 }

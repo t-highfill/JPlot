@@ -1,5 +1,6 @@
 package main.args;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,6 +13,13 @@ public class MultiFlag extends AbstractArgMatcher{
 		}
 		return flags;
 	}
+	private static String buildName(CharFlag[] flags){
+		String res = "-";
+		for(CharFlag cf : flags){
+			res+=cf.flag;
+		}
+		return res;
+	}
 	
 	final CharFlag[] flags;
 	private List<CharFlag> matchlist = null;
@@ -22,7 +30,7 @@ public class MultiFlag extends AbstractArgMatcher{
 	}
 	
 	public MultiFlag(CharFlag... flags){
-		this("MultiFlag", flags);
+		this(buildName(flags), flags);
 	}
 	
 	public MultiFlag(String chars){
@@ -41,7 +49,7 @@ public class MultiFlag extends AbstractArgMatcher{
 		String argflags = arg.substring(1);
 		this.matchlist = new LinkedList<CharFlag>();
 		for(CharFlag flag: flags){
-			if(argflags.contains(flag.name))
+			if(argflags.contains(flag.flag+""))
 				this.matchlist.add(flag);
 		}
 		return !this.matchlist.isEmpty();
@@ -61,6 +69,10 @@ public class MultiFlag extends AbstractArgMatcher{
 
 	public void setOptional(boolean optional) {
 		this.optional = optional;
+	}
+	
+	public String toString(){
+		return this.getClass().getName()+":"+Arrays.toString(this.flags);
 	}
 
 }

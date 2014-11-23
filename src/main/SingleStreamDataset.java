@@ -5,6 +5,9 @@ import geom.Point;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 public class SingleStreamDataset extends Dataset {
 	private static final long serialVersionUID = -1074138053765911487L;
@@ -23,12 +26,13 @@ public class SingleStreamDataset extends Dataset {
 		return null;
 	}
 	
-	protected void read(){
+	protected Collection<? extends Point> read(){
+		List<Point> res = new LinkedList<Point>();
 		String line = getLine();
 		while(line!=null){
 			if(trim)
 				line = line.trim();
-			double x = this.size(), y=0;
+			double x = res.size(), y=0;
 			if(separator!=null){
 				String[] pair = line.split(this.separator);
 				assert pair.length>=2;
@@ -36,9 +40,10 @@ public class SingleStreamDataset extends Dataset {
 				line = pair[1];
 			}
 			y=Double.parseDouble(line);
-			this.add(new Point(x,y));
+			res.add(new Point(x,y));
 			line=getLine();
 		}
+		return res;
 	}
 	
 	public SingleStreamDataset(Reader r){
