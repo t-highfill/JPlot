@@ -88,18 +88,31 @@ public class JPlot extends ArgsProcessor{
 		{"--fullscreen", FULLSCREEN.getName()},
 		{"--debug", DEBUG_MODE.getName()}
 	};
+	
 	public static final JPlot JPLOT = new JPlot();
 	
 	public static boolean isDebugOn(){
 		return DEBUG_MODE.getVal();
 	}
 	
+	/**
+	 * <p>Decides which readers to use for the x and y data.</p>
+	 * <p>Priority:</p>
+	 * <ol>
+	 * 	<li>Argument options such as <code>--y-file=&lt;file&gt;</code></li>
+	 * 	<li>Files in the file-loop section of the argument list</li>
+	 * 	<li>Standard input</li>
+	 * </ol>
+	 * @return An array of readers of length 2
+	 * @throws FileNotFoundException If files could not be found
+	 */
 	private static Reader[] getReaders() throws FileNotFoundException{
 		boolean[] stdin = {X_STDIN_FLAG.getVal(), Y_STDIN_FLAG.getVal()};
 		File[] files = {X_FILE.getVal(), Y_FILE.getVal()}, otherFiles = JPLOT.FILES.getFiles();
 		Reader[] readers = {null, null};
 		assert stdin.length == files.length && files.length == readers.length;
 		if(X_STDIN_FLAG.isDefined() && Y_STDIN_FLAG.isDefined()){
+			//User specified both flags, impossible to resolve
 			throw new FlagCollisionException(X_STDIN_FLAG, Y_STDIN_FLAG);
 		}
 		for(int i=0;i<readers.length;i++){
@@ -122,7 +135,13 @@ public class JPlot extends ArgsProcessor{
 		}
 		return readers;
 	}
+	
 	private static Dataset data = null;
+	
+	/**
+	 * Gets or creates the dataset
+	 * @return The dataset
+	 */
 	public static Dataset getData(){
 		if(data!=null){
 			return data;
@@ -161,6 +180,9 @@ public class JPlot extends ArgsProcessor{
 		);
 	}
 	
+	/**
+	 * Prints help information to standard output
+	 */
 	public void showHelp(){
 		System.out.println("JPlot: the java based data plotter");
 		System.out.println("USAGE:\tJPlot [OPTIONS] [FILES]\nOPTIONS:");
@@ -172,10 +194,17 @@ public class JPlot extends ArgsProcessor{
 			System.out.println("\t"+am.getHelp(maxsize));
 		}
 	}
+	
+	/**
+	 * Prints version information to the standard output
+	 */
 	public static void showVersion(){
 		System.out.println("JPlot 0.0.1\nThis program is a work in progress. Features are liable to change or vanish.");
 	}
 	
+	/**
+	 * Initializes display. Only runs if display is not already created
+	 */
 	private void initLWJGL(){
 		if(Display.isCreated()) return;
 		try {
@@ -189,23 +218,31 @@ public class JPlot extends ArgsProcessor{
 		}
 	}
 	
+	/**
+	 * The main draw loop.
+	 */
 	private void mainloop(){
 		this.initLWJGL();
-		getData().begin();
+		getData().begin();//Tell dataset to begin reading
 		while(!Display.isCloseRequested()){
-			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-			BG_COLOR.getVal().clearScreen();
-			getData().render();
-			Display.update();
+			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT); //Clear old buffers
+			BG_COLOR.getVal().clearScreen();	//Wipe screen with background color
+			getData().render();	//render dataset
+			Display.update();	//update display
 			int cap = FPSCAP.getVal();
 			if(cap > 0){
+				//cap must be positive and non-zero
 				Display.sync(cap);
 			}
 		}
 		Display.destroy();
-		System.exit(0);
+		System.exit(0);	//To kill threads
 	}
 	
+	/**
+	 * This function runs the whole show
+	 * @param args
+	 */
 	public static void main(String[] args){
 		DEBUG.println("args="+Arrays.toString(args));
 		try {

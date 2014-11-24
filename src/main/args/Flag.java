@@ -1,5 +1,10 @@
 package main.args;
 
+/**
+ * This class is for simple flags. when the flag is processed, the value is inverted.
+ * @author Tobias.Highfill
+ *
+ */
 public class Flag extends VariableArgument<Boolean>{
 	
 	public Flag(String name){

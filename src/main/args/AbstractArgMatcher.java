@@ -1,5 +1,10 @@
 package main.args;
 
+/**
+ * Mostly a convenience class to handle broad implementation stuff.
+ * @author Tobias.Highfill
+ *
+ */
 public abstract class AbstractArgMatcher implements ContinuousMatcher {
 	
 	final String name;
@@ -7,10 +12,19 @@ public abstract class AbstractArgMatcher implements ContinuousMatcher {
 	boolean optional = false;
 	private int uses = 1;
 	
+	/**
+	 * Initializes with just the name
+	 * @param name Argument name
+	 */
 	public AbstractArgMatcher(String name){
 		this.name=name;
 	}
 	
+	/**
+	 * Initializes with name and optionality
+	 * @param name Argument name
+	 * @param optional Makes this argument optional
+	 */
 	public AbstractArgMatcher(String name, boolean optional){
 		this(name);
 		this.optional = optional;
@@ -47,14 +61,25 @@ public abstract class AbstractArgMatcher implements ContinuousMatcher {
 		this.optional = optional;
 	}
 	
+	/**
+	 * Gets the remaining uses of this argument (for repetition purposes)
+	 * @return Number of uses
+	 */
 	protected int getUses(){
 		return uses;
 	}
 	
+	/**
+	 * Decrements the number of uses.
+	 */
 	protected void decrUses(){
 		uses--;
 	}
 	
+	/**
+	 * The method that does the actual processing
+	 * @param arg Argument to process
+	 */
 	protected abstract void processArg(String arg);
 
 	@Override
