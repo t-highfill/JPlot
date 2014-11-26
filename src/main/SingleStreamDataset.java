@@ -15,6 +15,7 @@ public class SingleStreamDataset extends Dataset {
 	BufferedReader br;
 	String separator = null;
 	boolean trim = false;
+	List<Point> buffer = new LinkedList<Point>();
 	
 	private String getLine(){
 		try {
@@ -26,13 +27,13 @@ public class SingleStreamDataset extends Dataset {
 		return null;
 	}
 	
-	protected Collection<? extends Point> read(){
-		List<Point> res = new LinkedList<Point>();
+	protected void read(){
 		String line = getLine();
-		while(line!=null){
+		for(double x=0;line!=null;++x){
+			JPlot.DEBUG.println("reading: "+line);
 			if(trim)
 				line = line.trim();
-			double x = res.size(), y=0;
+			double y=0;
 			if(separator!=null){
 				String[] pair = line.split(this.separator);
 				assert pair.length>=2;
@@ -40,10 +41,15 @@ public class SingleStreamDataset extends Dataset {
 				line = pair[1];
 			}
 			y=Double.parseDouble(line);
-			res.add(new Point(x,y));
+			Point p = new Point(x,y);
+			JPlot.DEBUG.println("Adding to buffer: "+p);
+			buffer.add(p);
 			line=getLine();
 		}
-		return res;
+	}
+	
+	protected Collection<? extends Point> getBuffer(){
+		return buffer;
 	}
 	
 	public SingleStreamDataset(Reader r){

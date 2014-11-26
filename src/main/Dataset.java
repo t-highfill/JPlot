@@ -3,8 +3,6 @@ package main;
 import geom.Point;
 
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.TreeSet;
 
 import org.lwjgl.opengl.GL11;
@@ -13,11 +11,10 @@ public abstract class Dataset extends TreeSet<Point>{
 	private static final long serialVersionUID = 1522253239006114986L;
 	GLColor color = JPlot.DEFAULT_LINECOLOR;
 	private volatile boolean done = false;
-	private List<Point> buffer = new LinkedList<Point>();
 	Thread readThread = new Thread(new Runnable(){
 		@Override
 		public void run() {
-			buffer.addAll(read());
+			read();
 			done=true;
 		}
 	});
@@ -70,9 +67,19 @@ public abstract class Dataset extends TreeSet<Point>{
 	}
 	
 	private void flush(){
-		this.addAll(this.buffer);
-		this.buffer.removeAll(this.buffer);
-		assert this.buffer.isEmpty();
+		Collection<? extends Point> buffer = this.getBuffer();
+		this.addAll(buffer);
+		buffer.removeAll(buffer);
+		assert buffer.isEmpty();
+		cull();
+	}
+	private void cull(){
+		int limit = JPlot.BUFFER_LIMIT.getVal();
+		if(limit>0){
+			while(this.size()>limit){
+				this.remove(this.first());
+			}
+		}
 	}
 	
 	public void render(){
@@ -89,7 +96,8 @@ public abstract class Dataset extends TreeSet<Point>{
 		GL11.glEnd();
 	}
 	
-	protected abstract Collection<? extends Point> read();
+	protected abstract void read();
+	protected abstract Collection<? extends Point> getBuffer();
 	
 	public boolean isReading(){
 		return this.readThread.isAlive();

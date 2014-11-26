@@ -11,6 +11,7 @@ public class DualStreamDataset extends Dataset {
 	private static final long serialVersionUID = 3419431301911831808L;
 	
 	private final SingleStreamDataset xdata, ydata;
+	private List<Point> buffer = new LinkedList<Point>();
 	
 	public DualStreamDataset(Reader xsrc, Reader ysrc){
 		this.xdata = new SingleStreamDataset(xsrc);
@@ -23,18 +24,16 @@ public class DualStreamDataset extends Dataset {
 	}
 
 	@Override
-	protected Collection<? extends Point> read() {//TODO test this
-		List<Point> res = new LinkedList<Point>();
+	protected void read() {//TODO test this
 		for(int i=0;!this.areTheyDone();++i){
 			waitFor(i, xdata);//hang until xdata gets data or ends
 			waitFor(i, ydata);//hang until ydata gets data or ends
 			if(i<xdata.size() && i<ydata.size()){
 				double x = xdata.get(i).y;
 				double y = ydata.get(i).y;
-				res.add(new Point(x,y));
+				buffer.add(new Point(x,y));
 			}
 		}
-		return res;
 	}
 	
 	private static void waitFor(int i, Dataset data){
@@ -49,6 +48,11 @@ public class DualStreamDataset extends Dataset {
 		this.xdata.begin();
 		this.ydata.begin();
 		super.begin();
+	}
+
+	@Override
+	protected Collection<? extends Point> getBuffer() {
+		return buffer;
 	}
 
 }

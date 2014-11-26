@@ -41,6 +41,7 @@ public class JPlot extends ArgsProcessor{
 	public static final CharFlag FULLSCREEN = new CharFlag('f', false);	//make window fullscreen?
 	public static final MultiFlag ALL_FLAGS = new MultiFlag(DEBUG_MODE, FULLSCREEN);
 	public static final IntOption FPSCAP = new IntOption("--fps-cap", -1);	//FPS cap
+	public static final IntOption BUFFER_LIMIT = new IntOption("--buffer-limit", -1); //limits the size of the buffer, older data will be dropped
 	public static final ActionArg HELP = new ActionArg("--help"){	//Display help
 		@Override
 		public void action() {
@@ -68,14 +69,15 @@ public class JPlot extends ArgsProcessor{
 		Y_STDIN_FLAG.description = "Extract y values from standard input";
 		DEBUG_MODE.description = "Run program in debug mode";
 		FULLSCREEN.description = "Run in fullscreen mode";
-		FPSCAP.description = "Limits the framerate. If negative or zero framerate is unlimited";
+		FPSCAP.description = "Limits the framerate. If negative or zero: framerate is unlimited";
+		BUFFER_LIMIT.description = "Limits the size of the buffer. If negative or zero: size is unlimited";
 		HELP.description = "Display this help message";
 		VERSION.description = "Display version information";
 	}
 	
 	public static final ArgMatcher[] VAR_OPTIONS = {
 		//Since this is the order in which they appear in the help message I have sorted them alphabetically
-		ALL_FLAGS, BG_COLOR, FPSCAP, HEIGHT, HELP,
+		ALL_FLAGS, BG_COLOR, BUFFER_LIMIT, FPSCAP, HEIGHT, HELP,
 		LINECOLOR, TITLE, VERSION, WIDTH, X_FILE, X_STDIN_FLAG,
 		Y_FILE, Y_STDIN_FLAG
 	};
@@ -86,7 +88,8 @@ public class JPlot extends ArgsProcessor{
 		{"--colour", LINECOLOR.getName()},	//brit-proofing
 		{"--bg-colour", BG_COLOR.getName()},	//More brit-proofing
 		{"--fullscreen", FULLSCREEN.getName()},
-		{"--debug", DEBUG_MODE.getName()}
+		{"--debug", DEBUG_MODE.getName()},
+		{"-l", BUFFER_LIMIT.getName()}
 	};
 	
 	public static final JPlot JPLOT = new JPlot();
