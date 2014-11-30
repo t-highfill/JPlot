@@ -92,7 +92,9 @@ public abstract class Dataset extends TreeSet<Point>{
 		JPlot.DEBUG.print("Flushing...");
 		Queue<? extends Point> buffer = this.getBuffer();
 		while(!buffer.isEmpty()){
-			this.add(buffer.remove());
+			Point p = buffer.poll();
+			if(p==null) break;
+			this.add(p);
 		}
 		assert buffer.isEmpty();
 		JPlot.DEBUG.println("done");

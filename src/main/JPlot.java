@@ -41,7 +41,8 @@ public class JPlot extends ArgsProcessor{
 	public static final CharFlag DEBUG_MODE = new CharFlag('d', false);	//controls debug mode
 	public static final CharFlag FULLSCREEN = new CharFlag('f', false);	//make window fullscreen?
 	public static final CharFlag BINARY_MODE = new CharFlag('b', false); //run in binary mode?
-	public static final MultiFlag ALL_FLAGS = new MultiFlag(DEBUG_MODE, FULLSCREEN, BINARY_MODE);
+	public static final CharFlag NO_AA = new CharFlag('a', false);	//Use AA?
+	public static final MultiFlag ALL_FLAGS = new MultiFlag(DEBUG_MODE, FULLSCREEN, BINARY_MODE, NO_AA);
 	public static final IntOption FPSCAP = new IntOption("--fps-cap", -1);	//FPS cap
 	public static final IntOption BUFFER_LIMIT = new IntOption("--buffer-limit", -1); //limits the size of the buffer, older data will be dropped
 	public static final DoubleOption X_MIN = new DoubleOption("--x-min", null);	//Sets x min on window
@@ -76,6 +77,7 @@ public class JPlot extends ArgsProcessor{
 		DEBUG_MODE.description = "Run program in debug mode";
 		FULLSCREEN.description = "Run in fullscreen mode";
 		BINARY_MODE.description = "Run in binary mode";
+		NO_AA.description = "If true, lines will not be antialiased";
 		FPSCAP.description = "Limits the framerate. If negative or zero: framerate is unlimited";
 		BUFFER_LIMIT.description = "Limits the size of the buffer. If negative or zero: size is unlimited";
 		X_MIN.description = "Sets the minimum x in the window. If null: the value will be from the data";
@@ -219,6 +221,14 @@ public class JPlot extends ArgsProcessor{
 		System.out.println("JPlot 0.0.1\nThis program is a work in progress. Features are liable to change or vanish.");
 	}
 	
+	private void initAA(){
+		GL11.glEnable(GL11.GL_LINE_SMOOTH);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_DONT_CARE);
+		GL11.glLineWidth(1.5f);
+	}
+	
 	/**
 	 * Initializes display. Only runs if display is not already created
 	 */
@@ -233,6 +243,8 @@ public class JPlot extends ArgsProcessor{
 			e.printStackTrace();
 			System.exit(e.getMessage().hashCode());
 		}
+		if(!NO_AA.getVal())
+			initAA();
 	}
 	
 	/**
