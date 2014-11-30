@@ -5,6 +5,7 @@ import geom.Point;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,10 +28,11 @@ public class SingleStreamDataset extends Dataset {
 		return null;
 	}
 	
-	protected void read(){
+	private void normalProcess(){
 		String line = getLine();
-		for(double x=0;line!=null;++x){
+		for(double linenum=0;line!=null;++linenum){
 			JPlot.DEBUG.println("reading: "+line);
+			double x = linenum;
 			if(trim)
 				line = line.trim();
 			double y=0;
@@ -48,8 +50,35 @@ public class SingleStreamDataset extends Dataset {
 		}
 	}
 	
+	private void binaryProcess() throws IOException{
+		for(int chr=br.read(), i=0; chr>=0; chr=br.read()){
+//			while(this.isFlushing()){}
+			while(copying){}
+			buffer.add(new Point(i, chr));
+			++i;
+		}
+	}
+	
+	protected void read(){
+		if(JPlot.BINARY_MODE.getVal()){
+			try {
+				binaryProcess();
+			} catch (IOException e) {
+				e.printStackTrace();
+				System.exit(e.getMessage().hashCode());
+			}
+		}else{
+			normalProcess();
+		}
+	}
+	
+	private boolean copying = false;
 	protected Collection<? extends Point> getBuffer(){
-		return buffer;
+		while(copying){}
+		copying=true;
+		Collection<? extends Point> res = new ArrayList<Point>(buffer);
+		copying=false;
+		return res;
 	}
 	
 	public SingleStreamDataset(Reader r){

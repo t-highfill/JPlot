@@ -39,9 +39,14 @@ public class JPlot extends ArgsProcessor{
 	public static final Flag Y_STDIN_FLAG = new Flag("--y-stdin", false);	//true if y should be taken from stdin
 	public static final CharFlag DEBUG_MODE = new CharFlag('d', false);	//controls debug mode
 	public static final CharFlag FULLSCREEN = new CharFlag('f', false);	//make window fullscreen?
-	public static final MultiFlag ALL_FLAGS = new MultiFlag(DEBUG_MODE, FULLSCREEN);
+	public static final CharFlag BINARY_MODE = new CharFlag('b', false); //run in binary mode?
+	public static final MultiFlag ALL_FLAGS = new MultiFlag(DEBUG_MODE, FULLSCREEN, BINARY_MODE);
 	public static final IntOption FPSCAP = new IntOption("--fps-cap", -1);	//FPS cap
 	public static final IntOption BUFFER_LIMIT = new IntOption("--buffer-limit", -1); //limits the size of the buffer, older data will be dropped
+	public static final DoubleOption X_MIN = new DoubleOption("--x-min", null);	//Sets x min on window
+	public static final DoubleOption X_MAX = new DoubleOption("--x-max", null);	//Sets x max on window
+	public static final DoubleOption Y_MIN = new DoubleOption("--y-min", null);	//Sets y min on window
+	public static final DoubleOption Y_MAX = new DoubleOption("--y-max", null);	//Sets y max on window
 	public static final ActionArg HELP = new ActionArg("--help"){	//Display help
 		@Override
 		public void action() {
@@ -69,8 +74,13 @@ public class JPlot extends ArgsProcessor{
 		Y_STDIN_FLAG.description = "Extract y values from standard input";
 		DEBUG_MODE.description = "Run program in debug mode";
 		FULLSCREEN.description = "Run in fullscreen mode";
+		BINARY_MODE.description = "Run in binary mode";
 		FPSCAP.description = "Limits the framerate. If negative or zero: framerate is unlimited";
 		BUFFER_LIMIT.description = "Limits the size of the buffer. If negative or zero: size is unlimited";
+		X_MIN.description = "Sets the minimum x in the window. If null: the value will be from the data";
+		X_MAX.description = "Sets the maximum x in the window. If null: the value will be from the data";
+		Y_MIN.description = "Sets the minimum y in the window. If null: the value will be from the data";
+		Y_MAX.description = "Sets the maximum y in the window. If null: the value will be from the data";
 		HELP.description = "Display this help message";
 		VERSION.description = "Display version information";
 	}
@@ -238,7 +248,9 @@ public class JPlot extends ArgsProcessor{
 				Display.sync(cap);
 			}
 		}
+		DEBUG.println("Destroying...");
 		Display.destroy();
+		DEBUG.println("Exiting...");
 		System.exit(0);	//To kill threads
 	}
 	

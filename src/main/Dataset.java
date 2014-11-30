@@ -7,6 +7,8 @@ import java.util.TreeSet;
 
 import org.lwjgl.opengl.GL11;
 
+import util.Selector;
+
 public abstract class Dataset extends TreeSet<Point>{
 	private static final long serialVersionUID = 1522253239006114986L;
 	GLColor color = JPlot.DEFAULT_LINECOLOR;
@@ -19,38 +21,55 @@ public abstract class Dataset extends TreeSet<Point>{
 		}
 	});
 	
-	public Point get(int index){
-		this.flush();
-		final int idx = index;
-		for(Point p : this.clone()){
-			if(index==0){
+	public Point get(final int index){
+//		this.flush();
+		int idx = index;
+		for(Point p : this){
+			if(idx==0){
 				return p;
 			}
-			index--;
+			idx--;
 		}
-		throw new ArrayIndexOutOfBoundsException(idx);
+		throw new ArrayIndexOutOfBoundsException(index);
 	}
 	
 	public Point min(){
-		this.flush();
-		if(this.isEmpty()) return null;
-		Point res = this.get(0);
-		for(Point p : this.clone()){
-			res = res.setX(Math.min(res.x, p.x));
-			res = res.setY(Math.min(res.y, p.y));
-			res = res.setZ(Math.min(res.z, p.z));
-		}
-		return res;
+		return select(new Selector<Double>(){
+			@Override
+			public Double choose(Double e1, Double e2) {
+				return Math.min(e1, e2);
+			}
+		}, JPlot.X_MIN.getVal(), JPlot.Y_MIN.getVal());
 	}
 	
 	public Point max(){
-		this.flush();
+		return select(new Selector<Double>(){
+			@Override
+			public Double choose(Double e1, Double e2) {
+				return Math.max(e1, e2);
+			}
+		}, JPlot.X_MAX.getVal(), JPlot.Y_MAX.getVal());
+	}
+	
+	private Point select(Selector<Double> selector, Double forceX, Double forceY){
+//		this.flush();
 		if(this.isEmpty()) return null;
-		Point res = this.get(0);
-		for(Point p : this.clone()){
-			res = res.setX(Math.max(res.x, p.x));
-			res = res.setY(Math.max(res.y, p.y));
-			res = res.setZ(Math.max(res.z, p.z));
+		boolean testX = forceX==null, testY = forceY==null;
+		Point res = this.first();
+		if(!testX){
+			res=res.setX(forceX);
+		}
+		if(!testY){
+			res=res.setY(forceY);
+		}
+		if(testX || testY){
+			for(Point p : this.clone()){
+				if(testX)
+					res = res.setX(selector.choose(res.x, p.x));
+				if(testY)
+					res = res.setY(selector.choose(res.y, p.y));
+				res = res.setZ(selector.choose(res.z, p.z));
+			}
 		}
 		return res;
 	}
@@ -66,19 +85,33 @@ public abstract class Dataset extends TreeSet<Point>{
 		return 2*(p-min)/max-1;
 	}
 	
+	private volatile boolean flushing = false;
 	private void flush(){
+		while(flushing){}
+		flushing=true;
+		JPlot.DEBUG.print("Flushing...");
 		Collection<? extends Point> buffer = this.getBuffer();
+		assert !buffer.isEmpty();
 		this.addAll(buffer);
 		buffer.removeAll(buffer);
 		assert buffer.isEmpty();
 		cull();
+		JPlot.DEBUG.println("done");
+		flushing=false;
 	}
+	
+	public boolean isFlushing(){
+		return flushing;
+	}
+	
 	private void cull(){
 		int limit = JPlot.BUFFER_LIMIT.getVal();
 		if(limit>0){
+			JPlot.DEBUG.println("Culling to limit: "+limit);
 			while(this.size()>limit){
 				this.remove(this.first());
 			}
+			JPlot.DEBUG.println("Size is now: "+this.size());
 		}
 	}
 	
@@ -87,9 +120,10 @@ public abstract class Dataset extends TreeSet<Point>{
 		if(this.isEmpty()) return;
 		Point minp = min(), maxp = max();
 		double minx = floor(minp.x), miny = floor(minp.y), maxx = ceil(maxp.x), maxy = ceil(maxp.y);
+		JPlot.DEBUG.println(String.format("min:%s\tmax:%s", minp.toString(), maxp.toString()));
 		JPlot.LINECOLOR.getVal().activate();
 		GL11.glBegin(GL11.GL_LINE_STRIP);
-		for(Point p : this.clone()){
+		for(Point p : this){
 			p.setX(adjust(p.x,minx,maxx)).setY(adjust(p.y,miny,maxy)).activate();
 //			JPlot.DEBUG.println("Drew point: "+p);
 		}
@@ -123,7 +157,8 @@ public abstract class Dataset extends TreeSet<Point>{
 	
 	@SuppressWarnings("unchecked")
 	public TreeSet<Point> clone(){
-		this.flush();
-		return (TreeSet<Point>) super.clone();
+//		this.flush();
+		TreeSet<Point> res = (TreeSet<Point>) super.clone();
+		return res;
 	}
 }
