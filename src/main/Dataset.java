@@ -2,7 +2,7 @@ package main;
 
 import geom.Point;
 
-import java.util.Collection;
+import java.util.Queue;
 import java.util.TreeSet;
 
 import org.lwjgl.opengl.GL11;
@@ -82,7 +82,7 @@ public abstract class Dataset extends TreeSet<Point>{
 	}
 	
 	private static double adjust(double p, double min, double max){
-		return 2*(p-min)/max-1;
+		return 2*(p-min)/(max-min)-1;
 	}
 	
 	private volatile boolean flushing = false;
@@ -90,10 +90,10 @@ public abstract class Dataset extends TreeSet<Point>{
 		while(flushing){}
 		flushing=true;
 		JPlot.DEBUG.print("Flushing...");
-		Collection<? extends Point> buffer = this.getBuffer();
-		assert !buffer.isEmpty();
-		this.addAll(buffer);
-		buffer.removeAll(buffer);
+		Queue<? extends Point> buffer = this.getBuffer();
+		while(!buffer.isEmpty()){
+			this.add(buffer.remove());
+		}
 		assert buffer.isEmpty();
 		cull();
 		JPlot.DEBUG.println("done");
@@ -131,7 +131,7 @@ public abstract class Dataset extends TreeSet<Point>{
 	}
 	
 	protected abstract void read();
-	protected abstract Collection<? extends Point> getBuffer();
+	protected abstract Queue<? extends Point> getBuffer();
 	
 	public boolean isReading(){
 		return this.readThread.isAlive();

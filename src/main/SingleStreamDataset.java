@@ -5,10 +5,8 @@ import geom.Point;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Queue;
 
 public class SingleStreamDataset extends Dataset {
 	private static final long serialVersionUID = -1074138053765911487L;
@@ -16,7 +14,7 @@ public class SingleStreamDataset extends Dataset {
 	BufferedReader br;
 	String separator = null;
 	boolean trim = false;
-	List<Point> buffer = new LinkedList<Point>();
+	Queue<Point> buffer = new LinkedList<Point>();
 	
 	private String getLine(){
 		try {
@@ -73,12 +71,13 @@ public class SingleStreamDataset extends Dataset {
 	}
 	
 	private boolean copying = false;
-	protected Collection<? extends Point> getBuffer(){
-		while(copying){}
-		copying=true;
-		Collection<? extends Point> res = new ArrayList<Point>(buffer);
-		copying=false;
-		return res;
+	protected Queue<? extends Point> getBuffer(){
+//		while(copying){}
+//		copying=true;
+//		Queue<? extends Point> res = new LinkedList<Point>(buffer);
+//		copying=false;
+//		return res;
+		return buffer;
 	}
 	
 	public SingleStreamDataset(Reader r){

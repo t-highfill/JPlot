@@ -3,15 +3,14 @@ package main;
 import geom.Point;
 
 import java.io.Reader;
-import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Queue;
 
 public class DualStreamDataset extends Dataset {
 	private static final long serialVersionUID = 3419431301911831808L;
 	
 	private final SingleStreamDataset xdata, ydata;
-	private List<Point> buffer = new LinkedList<Point>();
+	private Queue<Point> buffer = new LinkedList<Point>();
 	
 	public DualStreamDataset(Reader xsrc, Reader ysrc){
 		this.xdata = new SingleStreamDataset(xsrc);
@@ -51,7 +50,7 @@ public class DualStreamDataset extends Dataset {
 	}
 
 	@Override
-	protected Collection<? extends Point> getBuffer() {
+	protected Queue<? extends Point> getBuffer() {
 		return buffer;
 	}
 
