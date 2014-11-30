@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.util.Arrays;
 
 import org.lwjgl.LWJGLException;
+import org.lwjgl.Sys;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
@@ -182,6 +183,9 @@ public class JPlot extends ArgsProcessor{
 	}
 	
 	public final FileLoop FILES = new FileLoop("files", true);
+	private long lastFrame=getTime();
+	private int fps=0;
+	private long lastFPS = getTime();
 	
 	private JPlot(){
 		super(ALIASES);
@@ -240,6 +244,7 @@ public class JPlot extends ArgsProcessor{
 		while(!Display.isCloseRequested()){
 			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT); //Clear old buffers
 			BG_COLOR.getVal().clearScreen();	//Wipe screen with background color
+			this.updateFPS();
 			getData().render();	//render dataset
 			Display.update();	//update display
 			int cap = FPSCAP.getVal();
@@ -252,6 +257,35 @@ public class JPlot extends ArgsProcessor{
 		Display.destroy();
 		DEBUG.println("Exiting...");
 		System.exit(0);	//To kill threads
+	}
+	
+	/**
+	 * Get accurate system time
+	 * 
+	 * @return System time in milliseconds
+	 */
+	public static long getTime(){
+		return (Sys.getTime()*1000)/Sys.getTimerResolution();
+	}
+	
+	/**
+	 * Time since last frame
+	 * @return milliseconds since last frame
+	 */
+	public int getDelta(){
+		long time = getTime();
+		int delta = (int) (time-lastFrame);
+		lastFrame = time;
+		return delta;
+	}
+	
+	private void updateFPS(){
+		if(getTime()-lastFPS > 1000){
+			Display.setTitle(TITLE.getVal()+" FPS: "+fps);
+			fps=0;
+			lastFPS+=1000;
+		}
+		fps++;
 	}
 	
 	/**

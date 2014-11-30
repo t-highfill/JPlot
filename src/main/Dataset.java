@@ -95,8 +95,8 @@ public abstract class Dataset extends TreeSet<Point>{
 			this.add(buffer.remove());
 		}
 		assert buffer.isEmpty();
-		cull();
 		JPlot.DEBUG.println("done");
+		cull();
 		flushing=false;
 	}
 	
