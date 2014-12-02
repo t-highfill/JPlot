@@ -28,12 +28,14 @@ public class JPlot extends ArgsProcessor{
 	public static final GLColor DEFAULT_BACKGROUND = GLColor.WHITE;
 	public static final GLColor DEFAULT_LINECOLOR = GLColor.BLACK;
 	public static final String DEFAULT_TITLE = "JPlot";
+	public static final String DEFAULT_SEPARATOR = "\t";
 	
 	public static final IntOption WIDTH = new IntOption("--width", DEFAULT_WIDTH);	//Window width
 	public static final IntOption HEIGHT = new IntOption("--height",DEFAULT_HEIGHT);	//Window height
 	public static final ColorOption LINECOLOR = new ColorOption("--color", DEFAULT_LINECOLOR);	//Line color
 	public static final ColorOption BG_COLOR = new ColorOption("--bg-color", DEFAULT_BACKGROUND);	//Background color
 	public static final StringOption TITLE = new StringOption("--title", DEFAULT_TITLE);	//window title
+	public static final StringOption SEPARATOR = new StringOption("--separator", DEFAULT_SEPARATOR);	//data separator
 	public static final FileOption Y_FILE = new FileOption("--y-file", null);	//y data file
 	public static final FileOption X_FILE = new FileOption("--x-file", null);	//x data file
 	public static final Flag X_STDIN_FLAG = new Flag("--x-stdin", false);	//true if x should be taken from stdin
@@ -177,7 +179,7 @@ public class JPlot extends ArgsProcessor{
 		}else{
 			for(Reader r : readers){
 				if(r!=null){
-					data = new SingleStreamDataset(r);
+					data = new SingleStreamDataset(r, SEPARATOR.getVal());
 				}
 			}
 		}

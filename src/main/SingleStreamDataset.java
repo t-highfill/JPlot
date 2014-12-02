@@ -84,6 +84,11 @@ public class SingleStreamDataset extends Dataset {
 		br = new BufferedReader(r);
 	}
 	
+	public SingleStreamDataset(Reader r, String sep){
+		this(r);
+		this.separator = sep;
+	}
+	
 	public SingleStreamDataset(Reader r, String sep, GLColor color){
 		this(r);
 		this.color=color;
